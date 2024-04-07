@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package logstream;
+
+// Specify the Go package where the generated code will reside.
+option go_package = "./rpcstream";
+
+message LogEntry {
+  string log_message = 1;
+}
+
+message LogResponse {
+  bool success = 1;
+}
+
+service LogService {
+  rpc LogMessage(LogEntry) returns (LogResponse);
+}

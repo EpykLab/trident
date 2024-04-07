@@ -1,0 +1,11 @@
+# define the services to monitor
+services:
+  ssh: false
+  auditd: false
+  faillog: false
+  webserver: false
+stream:
+  url:
+files:
+  - /var/log/auth.log
+  - /var/log/faillog
