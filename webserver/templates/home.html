@@ -6,5 +6,12 @@
 <body>
     <h1>Welcome to My Honeypot Site</h1>
     <a href="/login">Login</a> | <a href="/search">Search</a>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        Select file to upload:
+        <input type="file" name="file">
+        <input type="submit" value="Upload File">
+    </form>
+    
 </body>
 </html>

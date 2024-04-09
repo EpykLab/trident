@@ -19,7 +19,10 @@ type Config struct {
 	Stream struct {
 		URL string `yaml:"url"`
 	} `yaml:"stream"`
-	Files []string `yaml:"files"`
+	Files   []string `yaml:"files"`
+	Capture struct {
+		Uploads bool `yaml:"upload"`
+	} `yaml:"capture"`
 }
 
 func ParseConfig() (*Config, error) {

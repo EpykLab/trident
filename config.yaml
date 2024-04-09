@@ -9,3 +9,5 @@ stream:
 files:
   - /var/log/auth.log
   - /var/log/faillog
+capture:
+  uploads: true

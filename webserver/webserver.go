@@ -1,44 +1,98 @@
 package webserver
 
 import (
-	"html/template"
+	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 
 	logger "github.com/Epyklab/trident/utils/logging"
+	"github.com/gin-gonic/gin"
 )
 
-func Router() {
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/search", searchHandler)
+func loggingMiddleware(lineChan chan<- string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
 
-	log.Println("Starting server on :8080...")
-	if err := http.ListenAndServe(":8181", nil); err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		messsage := fmt.Sprintf("%s %s %s %s %s",
+			c.PostForm("username"),
+			c.PostForm("password"),
+			c.Request.Proto,
+			c.ClientIP(),
+			c.Request.Proto)
+		entry := logger.Entry(messsage,
+			"webserver")
+
+		lineChan <- string(entry)
+
 	}
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("templates/home.html"))
-	tmpl.Execute(w, nil)
+func Router(lineChan chan string) *gin.Engine {
+	router := setupRouter(lineChan)
+
+	// Define routes and associate handlers
+	router.GET("/", homeHandler)
+	router.GET("/login", loginHandler)
+	router.POST("/login", loginHandler) // Handle POST request on the login page
+	router.GET("/search", searchHandler)
+	router.POST("/upload", uploadHandler)
+
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
+	}
+
+	return router
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		// Log the login attempt
-		logger.Log.Printf("Login attempt. Username: %s. Password: %s", r.FormValue("username"),
-			r.FormValue("password"))
-	}
-	tmpl := template.Must(template.ParseFiles("templates/login.html"))
-	tmpl.Execute(w, nil)
+func setupRouter(lineChan chan string) *gin.Engine {
+	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+
+	// Apply the logging middleware
+	router.Use(loggingMiddleware(lineChan))
+
+	// Load HTML templates
+	router.LoadHTMLGlob("webserver/templates/*")
+
+	return router
 }
 
-func searchHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		// Log the search query
-		logger.Log.Printf("Search query: %s\n", r.URL.Query().Get("q"))
+func homeHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "home.html", gin.H{"title": "Home"})
+}
+
+func loginHandler(c *gin.Context) {
+	if c.Request.Method == "POST" {
+		// Example: Log the username when a POST request is made to the login page
+		username := c.PostForm("username")
+		log.Printf("Login attempt with username: %s", username)
 	}
-	tmpl := template.Must(template.ParseFiles("templates/search.html"))
-	tmpl.Execute(w, nil)
+	c.HTML(http.StatusOK, "login.html", gin.H{"title": "Login"})
+}
+
+func searchHandler(c *gin.Context) {
+	query := c.Query("q")
+	// Log the search query directly from the handler as an example
+	log.Printf("Search query: %s", query)
+	c.HTML(http.StatusOK, "search.html", gin.H{"title": "Search"})
+}
+
+func uploadHandler(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+		return
+	}
+
+	// Define the directory and filename where the file will be stored
+	filename := filepath.Base(file.Filename)
+	targetPath := filepath.Join("/workspaces/trident/uploads", filename)
+
+	if err := c.SaveUploadedFile(file, targetPath); err != nil {
+		c.String(http.StatusInternalServerError, fmt.Sprintf("upload file err: %s", err.Error()))
+		return
+	}
+
+	c.String(http.StatusOK, fmt.Sprintf("File %s uploaded successfully.", filename))
 }
