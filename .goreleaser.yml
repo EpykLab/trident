@@ -1,8 +1,8 @@
 # .goreleaser.yml
 
 builds:
-  - id: "linux-build"
-    dir: "."
+  - main: "./agent" 
+    id: "agent"
     goos:
       - linux
     goarch:
@@ -11,6 +11,18 @@ builds:
       - -s -w
     env:
       - CGO_ENABLED=0
+
+  - main: "./server"
+    id: "server"
+    goos:
+      - linux
+    goarch:
+      - amd64
+    ldflags:
+      - -s -w
+    env:
+      - CGO_ENABLED=0
+
 
 release:
   # contain special words like alpha, beta, or rc
