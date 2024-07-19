@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/Epyklab/trident/logparser"
-	"github.com/Epyklab/trident/logstream"
-	"github.com/Epyklab/trident/malhandler"
-	"github.com/Epyklab/trident/utils"
-	"github.com/Epyklab/trident/webserver"
+	"github.com/Epyklab/trident/agent/logparser"
+	"github.com/Epyklab/trident/agent/logstream"
+	"github.com/Epyklab/trident/agent/malhandler"
+	"github.com/Epyklab/trident/agent/utils"
+	"github.com/Epyklab/trident/agent/webserver"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 		go logparser.TailFile(logFile, lineChan)
 	}
 
-	go malhandler.WatchDirectory("/workspaces/trident/uploads", lineChan)
+	go malhandler.WatchDirectory("/opt/trident/uploads", lineChan)
 
 	go logstream.ShipLogs(lineChan)
 

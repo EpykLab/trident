@@ -8,6 +8,7 @@ stream:
   url:
 files:
   - /var/log/auth.log
-  - /var/log/faillog
+  ##  - /var/log/faillog
 capture:
   uploads: true
+webfiles: /bin/templates/*

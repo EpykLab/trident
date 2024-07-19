@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package logstream;
+
+option go_package = "github.com/Epyklab/trident/server/pkg/protobuf";
+
+service LogService { rpc LogMessage(LogEntry) returns (LogResponse); }
+
+message LogEntry { string log_message = 1; }
+
+message LogResponse { bool success = 1; }

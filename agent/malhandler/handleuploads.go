@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	logger "github.com/Epyklab/trident/utils/logging"
+	logger "github.com/Epyklab/trident/agent/utils/logging"
 	"github.com/fsnotify/fsnotify"
 )
 

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	configPath = "/etc/trident/"
+	configPath = "/bin/"
 )
 
 type Config struct {
@@ -23,6 +23,7 @@ type Config struct {
 	Capture struct {
 		Uploads bool `yaml:"upload"`
 	} `yaml:"capture"`
+	Webfiles string `yaml:"webfiles"`
 }
 
 func ParseConfig() (*Config, error) {

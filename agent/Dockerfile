@@ -31,7 +31,7 @@ ARG TARGETARCH
 # source code into the container.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
-    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/server .
+    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/trident .
 
 ################################################################################
 # Create a new stage for running the application that contains the minimal
@@ -44,35 +44,33 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 # most recent version of that image when you build your Dockerfile. If
 # reproducability is important, consider using a versioned tag
 # (e.g., alpine:3.17.2) or SHA (e.g., alpine@sha256:c41ab5c992deb4fe7e5da09f67a8804a46bd0592bfdf0b1847dde0e0889d2bff).
-FROM alpine:latest AS final
+FROM ubuntu:latest AS final
 
 # Install any runtime dependencies that are needed to run your application.
 # Leverage a cache mount to /var/cache/apk/ to speed up subsequent builds.
 RUN --mount=type=cache,target=/var/cache/apk \
-    apk --update add \
-        ca-certificates \
-        tzdata \
-        && \
-        update-ca-certificates
+    apt update && apt upgrade -y && apt install -y ca-certificates \
+        tzdata
+
+RUN update-ca-certificates 
+
+RUN apt install openssh-server -y 
+
+RUN touch /var/log/auth.log
+
+RUN mkdir -p /opt/trident/uploads/
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
-USER appuser
 
 # Copy the executable from the "build" stage.
-COPY --from=build /bin/server /bin/
+COPY --from=build /bin/trident /bin/
+COPY ./webserver/templates/ /bin/templates/
+COPY ./config.yaml /bin
+
 
 # Expose the port that the application listens on.
 EXPOSE 5555
 EXPOSE 8080
 # What the container should run when it is started.
-ENTRYPOINT [ "/bin/server" ]
+ENTRYPOINT [ "/bin/trident" ]

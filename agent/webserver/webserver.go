@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"path/filepath"
 
-	logger "github.com/Epyklab/trident/utils/logging"
+	"github.com/Epyklab/trident/agent/utils"
+	logger "github.com/Epyklab/trident/agent/utils/logging"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,6 +47,8 @@ func Router(lineChan chan string) *gin.Engine {
 }
 
 func setupRouter(lineChan chan string) *gin.Engine {
+	conf, _ := utils.ParseConfig()
+
 	router := gin.Default()
 	gin.SetMode(gin.ReleaseMode)
 
@@ -53,7 +56,7 @@ func setupRouter(lineChan chan string) *gin.Engine {
 	router.Use(loggingMiddleware(lineChan))
 
 	// Load HTML templates
-	router.LoadHTMLGlob("webserver/templates/*")
+	router.LoadHTMLGlob(conf.Webfiles)
 
 	return router
 }
@@ -87,7 +90,7 @@ func uploadHandler(c *gin.Context) {
 
 	// Define the directory and filename where the file will be stored
 	filename := filepath.Base(file.Filename)
-	targetPath := filepath.Join("/workspaces/trident/uploads", filename)
+	targetPath := filepath.Join("/opt/trident/uploads", filename)
 
 	if err := c.SaveUploadedFile(file, targetPath); err != nil {
 		c.String(http.StatusInternalServerError, fmt.Sprintf("upload file err: %s", err.Error()))

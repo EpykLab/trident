@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+  agent:
+    image: ghcr.io/epyklab/trident-agent:latest
+    networks:
+      agentnet:
+        ipv4_address: 172.16.239.4
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - '8080:8080'
+    restart: always
+    environment:
+      TRIDENT_SERVER_ADDRESS: server:5555
+  server: 
+    image: ghcr.io/epyklab/trident-server:latest
+    networks:
+      servernet:
+        ipv4_address: 172.16.238.3
+      agentnet:
+        ipv4_address: 172.16.239.7
+    restart: always
+    cap_add:
+      - NET_ADMIN
+networks: 
+  servernet:
+    ipam: 
+      driver: default
+      config: 
+        - subnet: "172.16.238.0/24"
+  agentnet:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.239.0/24"
