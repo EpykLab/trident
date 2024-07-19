@@ -28,7 +28,7 @@ jobs:
           echo "${{ secrets.COSIGN_PUB }}" > cosign.pub
       -
         name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v5.1.0
         with:
           distribution: goreleaser
           version: latest
