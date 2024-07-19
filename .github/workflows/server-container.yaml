@@ -1,4 +1,4 @@
-name: Build agent container
+name: Build server container
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-      push-agent-image:
+      push-server-image:
         runs-on: ubuntu-latest
         defaults:
           run:
-            working-directory: './agent'
+            working-directory: './server'
         steps:
           - name: 'Checkout GitHub Action'
             uses: actions/checkout@main
@@ -23,8 +23,8 @@ jobs:
               username: ${{github.actor}}
               password: ${{secrets.GITHUB_TOKEN}}
 
-          - name: 'build agent image'
+          - name: 'build server image'
             run: |
-              docker build . --tag ghcr.io/epyklab/trident-agent-generic:latest
-              docker push ghcr.io/epyklab/trident-agent-generic:latest
+              docker build . --tag ghcr.io/epyklab/trident-server:latest
+              docker push ghcr.io/epyklab/trident-server:latest
 
