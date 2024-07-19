@@ -27,15 +27,28 @@ jobs:
           echo "${{ secrets.COSIGN_PRIVATE_KEY }}" > cosign.key
           echo "${{ secrets.COSIGN_PUB }}" > cosign.pub
       -
-        name: Run GoReleaser
+        name: Run GoReleaser on agent
         uses: goreleaser/goreleaser-action@v5.1.0
         with:
           distribution: goreleaser
           version: latest
+          workdir: ./agent
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           COSIGN_PWD: ${{ secrets.COSIGN_PASSWORD }}
+      -
+        name: Run GoReleaser on server
+        uses: goreleaser/goreleaser-action@v5.1.0
+        with:
+          distribution: goreleaser
+          version: latest
+          workdir: ./server
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          COSIGN_PWD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PUB: ${{ secrets.COSIGN_PUBLIC_PUB }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
