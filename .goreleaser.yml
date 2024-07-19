@@ -1,7 +1,7 @@
 # .goreleaser.yml
 
 builds:
-  - main: "./agent" 
+  - main: ./agent 
     id: "agent"
     goos:
       - linux
@@ -12,7 +12,7 @@ builds:
     env:
       - CGO_ENABLED=0
 
-  - main: "./server/cmd/server"
+  - main: ./server/cmd/server
     id: "server"
     goos:
       - linux
