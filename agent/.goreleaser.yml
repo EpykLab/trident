@@ -1,0 +1,32 @@
+version: 2
+builds:
+  - main: .
+    id: "agent"
+    goos:
+      - linux
+    goarch:
+      - amd64
+    ldflags:
+      - -s -w
+    env:
+      - CGO_ENABLED=0
+release:
+  prerelease: auto
+  extra_files:
+    - glob: ./cosign.pub
+signs:
+  - cmd: cosign
+    stdin: "{{ .Env.COSIGN_PWD }}"
+    args:
+      - "sign-blob"
+      - "--key=cosign.key"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes" 
+    artifacts: all
+announce:
+  telegram:
+    enabled: true
+    chat_id: -1002225906239
+    message_template: '{{ mdv2escape .ProjectName }} {{ mdv2escape .Tag }} is out{{ mdv2escape "!" }} Check it out at {{ mdv2escape .ReleaseURL }}'
+    parse_mode: MarkdownV2
