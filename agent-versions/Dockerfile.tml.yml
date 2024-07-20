@@ -1,0 +1,38 @@
+ARG GO_VERSION=1.22
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build
+WORKDIR /src
+
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    --mount=type=bind,source=go.sum,target=go.sum \
+    --mount=type=bind,source=go.mod,target=go.mod \
+    go mod download -x
+
+ARG TARGETARCH
+
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    --mount=type=bind,target=. \
+    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/trident .
+
+
+FROM ubuntu:latest AS final
+
+RUN --mount=type=cache,target=/var/cache/apk \
+    apt update && apt upgrade -y && apt install -y ca-certificates \
+        tzdata
+
+RUN update-ca-certificates 
+
+RUN apt install openssh-server -y 
+
+RUN touch /var/log/auth.log
+
+RUN mkdir -p /opt/trident/uploads/
+
+COPY --from=build /bin/trident /bin/
+COPY ./webserver/templates/ /bin/templates/
+COPY ./config.yaml /bin
+
+
+EXPOSE 5555
+EXPOSE 8080
+ENTRYPOINT [ "/bin/trident" ]
