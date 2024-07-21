@@ -16,7 +16,7 @@ _lightweight, efficient, golang based cyber deception_
 </p>
 
 
-## trident Server
+## Trident Server
 
 <p align="center">
 <!-- Go report card -->
