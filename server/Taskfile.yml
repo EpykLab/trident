@@ -1,0 +1,41 @@
+version: '3'
+
+vars:
+  APPNAME: trident-server
+  ORG: epyklab
+  REPO: ghcr.io
+  TAG: $(git rev-parse --short HEAD)
+
+tasks:
+  default:
+    desc: "Build and publish docker container"
+    cmds:
+      - task: scan
+      - task: build
+      - task: publish
+  scan:
+    desc: "scan the repo for vulnerabilities"
+    cmds:
+      - |
+        [ $(trivy fs . --format json | jq '.Results.[].Vulnerabilities | length') -gt 0 ] && echo 'Vulnerabilities found' && exit 1 || echo 'No vulnerabilities found' && exit 0
+  build:
+    desc: "Build docker container"
+    cmds:
+      - sudo -E docker build -t {{.REPO}}/{{.ORG}}/{{.APPNAME}}:{{.TAG}} .
+
+  publish:
+    desc: "Publish docker container"
+    cmds:
+      - sudo -E docker login --username {{.ORG}} --password $(gh auth token) ghcr.io
+      - sudo -E docker push {{.REPO}}/{{.ORG}}/{{.APPNAME}}:{{.TAG}}
+  sign:
+    desc: "sign the docker container"
+    cmds:
+      - cosign sign -y $(sudo -E docker inspect {{.REPO}}/{{.ORG}}/{{.APPNAME}}:{{.TAG}}|jq -r ".[].RepoDigests.[]")
+  kobuild:
+    desc: "Use ko to build and publish an image"
+    cmds:
+      - KO_DOCKER_REPO={{.REPO}}/{{.ORG}}/{{.APPNAME}} ko build ./cmd/server 
+env:
+  docker_TAG:
+    sh: git rev-parse --short HEAD
