@@ -211,4 +211,4 @@ func file_logstream_proto_init() {
 	file_logstream_proto_rawDesc = nil
 	file_logstream_proto_goTypes = nil
 	file_logstream_proto_depIdxs = nil
-}
+

@@ -1,6 +1,6 @@
-version: '3.7'
 services:
   agent:
+    build: ./agent
     image: ghcr.io/epyklab/trident-agent-generic:latest
     networks:
       agentnet:
@@ -13,7 +13,8 @@ services:
     environment:
       TRIDENT_SERVER_ADDRESS: server:5555
   server: 
-    image: ghcr.io/epyklab/trident-server:latest
+    build: ./server
+    #image: server/
     networks:
       servernet:
         ipv4_address: 172.16.238.3

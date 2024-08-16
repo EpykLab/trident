@@ -1,0 +1,13 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: trident
+manifests:
+  rawYaml:
+    - daemonset.yaml
+    - deployment.yaml
+    - service.yaml
+deploy:
+  kubectl: {
+    defaultNamespace: trident
+  }    

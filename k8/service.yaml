@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: trident
+  name: trident-server
+spec:
+  selector:
+    app: trident-server
+  ports:
+    - protocol: TCP
+      port: 5555
+      targetPort: 5555
+      nodePort: 30055
+  type: NodePort

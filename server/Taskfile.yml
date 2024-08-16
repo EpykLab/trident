@@ -13,6 +13,8 @@ tasks:
       - task: scan
       - task: build
       - task: publish
+      - task: sbom
+      - task: sign
   scan:
     desc: "scan the repo for vulnerabilities"
     cmds:
@@ -28,14 +30,23 @@ tasks:
     cmds:
       - sudo -E docker login --username {{.ORG}} --password $(gh auth token) ghcr.io
       - sudo -E docker push {{.REPO}}/{{.ORG}}/{{.APPNAME}}:{{.TAG}}
+  sbom:
+    desc: build sbom
+    cmds:
+      - syft {{.REPO}}/{{.ORG}}/{{.APPNAME}}:{{.TAG}} -o spdx > sbom.spdx
+      - cosign attest --predicate sbom.spdx --type spdx {{.REPO}}/{{.ORG}}/{{.APPNAME}}:{{.TAG}}
   sign:
     desc: "sign the docker container"
     cmds:
       - cosign sign -y $(sudo -E docker inspect {{.REPO}}/{{.ORG}}/{{.APPNAME}}:{{.TAG}}|jq -r ".[].RepoDigests.[]")
-  kobuild:
-    desc: "Use ko to build and publish an image"
+  update:
+    desc: "updates all go versions"
     cmds:
-      - KO_DOCKER_REPO={{.REPO}}/{{.ORG}}/{{.APPNAME}} ko build ./cmd/server 
+      - go get -u ./... && go mod tidy
+  skaffi:
+    desc: "Scaffold init"
+    cmds: 
+      - skaffold init --generate-manifests=true 
 env:
   docker_TAG:
     sh: git rev-parse --short HEAD

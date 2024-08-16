@@ -6,9 +6,7 @@ import (
 )
 
 var (
-	// InfoLogger : Exported Info Logger
-	InfoLogger *log.Logger
-	// ErrorLogger : Exported Error Logger
+	InfoLogger  *log.Logger
 	ErrorLogger *log.Logger
 )
 

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trident-server-deployment
+  namespace: trident
+  labels:
+    app: trident-server
+spec: 
+  replicas: 3
+  selector:
+    matchLabels: 
+      app: trident-server
+  template:
+    metadata:
+      labels:
+        app: trident-server
+    spec:
+      containers:
+        - name: trident-server
+          image: ghcr.io/epyklab/trident-server@sha256:443469f62f26595735091db17b4cdda9d1e965dba3515824e45339cfe5a3d16b
+          ports:
+            - containerPort: 5555
+      imagePullSecrets:
+        - name: ghcr-secret    
