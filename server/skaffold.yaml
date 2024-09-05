@@ -1,0 +1,14 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: k-
+build:
+  artifacts:
+    - image: ghcr.io/epyklab/trident-server
+      docker:
+        dockerfile: ../server/Dockerfile
+manifests:
+  rawYaml:
+    - ../k8/namespace.yaml
+    - ../k8/deployment.yaml
+    - ../k8/service.yaml

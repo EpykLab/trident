@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: trident-server
-          image: ghcr.io/epyklab/trident-server@sha256:443469f62f26595735091db17b4cdda9d1e965dba3515824e45339cfe5a3d16b
+          image: ghcr.io/epyklab/trident-server:latest
           ports:
             - containerPort: 5555
-      imagePullSecrets:
-        - name: ghcr-secret    
+      # imagePullSecrets:
+      #   - name: ghcr-secret

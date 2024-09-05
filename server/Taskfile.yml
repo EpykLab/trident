@@ -46,7 +46,11 @@ tasks:
   skaffi:
     desc: "Scaffold init"
     cmds: 
-      - skaffold init --generate-manifests=true 
+      - skaffold init --generate-manifests=true
+  skaffd:
+    desc: "skaffold dev"
+    cmds:
+      - (cd ../k8/ && skaffold dev &)
 env:
   docker_TAG:
     sh: git rev-parse --short HEAD
